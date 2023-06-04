@@ -1,31 +1,52 @@
 package com.mycompany.projetoprincipal;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 public class Cliente {
+    private final SimpleIntegerProperty id;
+    private final SimpleStringProperty nome;
+    private final SimpleStringProperty email;
 
-    private final ObservableList<Cliente> clientes;
-
-    public Cliente() {
-        // Inicializar a lista de clientes (você pode substituir por um banco de dados real se preferir)
-        clientes = FXCollections.observableArrayList();
+    public Cliente(int id, String nome, String email) {
+        this.id = new SimpleIntegerProperty(id);
+        this.nome = new SimpleStringProperty(nome);
+        this.email = new SimpleStringProperty(email);
     }
 
-    public void criarCliente(Cliente cliente) {
-        clientes.add(cliente);
+    public int getId() {
+        return id.get();
     }
 
-    public ObservableList<Cliente> listarClientes() {
-        return clientes;
+    public SimpleIntegerProperty idProperty() {
+        return id;
     }
 
-    public void atualizarCliente(Cliente cliente) {
-        // Atualizar o cliente na lista ou no banco de dados
-        // Implemente a lógica de atualização aqui
+    public void setId(int id) {
+        this.id.set(id);
     }
 
-    public void deletarCliente(Cliente cliente) {
-        clientes.remove(cliente);
+    public String getNome() {
+        return nome.get();
+    }
+
+    public SimpleStringProperty nomeProperty() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome.set(nome);
+    }
+
+    public String getEmail() {
+        return email.get();
+    }
+
+    public SimpleStringProperty emailProperty() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email.set(email);
     }
 }

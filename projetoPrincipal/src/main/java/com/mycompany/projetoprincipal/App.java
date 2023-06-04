@@ -1,15 +1,18 @@
 package com.mycompany.projetoprincipal;
 
 import javafx.application.Application;
-import javafx.geometry.Insets;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application {
+    private TableView<Cliente> tabelaClientes;
+    private TextField campoNome;
+    private TextField campoEmail;
+    private ObservableList<Cliente> listaClientes;
 
     public static void main(String[] args) {
         launch(args);
@@ -17,82 +20,88 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Cadastro de Clientes");
+        primaryStage.setTitle("CRUD de Clientes");
 
-        // Criação dos componentes da interface gráfica
-        Label nomeLabel = new Label("Nome:");
-        TextField nomeField = new TextField();
+        tabelaClientes = new TableView<>();
+        listaClientes = FXCollections.observableArrayList();
 
-        Label idadeLabel = new Label("Idade:");
-        TextField idadeField = new TextField();
+        TableColumn<Cliente, Integer> colunaId = new TableColumn<>("ID");
+        colunaId.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
 
-        Label enderecoLabel = new Label("Endereço:");
-        TextArea enderecoArea = new TextArea();
+        TableColumn<Cliente, String> colunaNome = new TableColumn<>("Nome");
+        colunaNome.setCellValueFactory(cellData -> cellData.getValue().nomeProperty());
 
-        Label descontoLabel = new Label("Desconto:");
-        CheckBox descontoCheckBox = new CheckBox();
+        TableColumn<Cliente, String> colunaEmail = new TableColumn<>("Email");
+        colunaEmail.setCellValueFactory(cellData -> cellData.getValue().emailProperty());
 
-        Label estadoCivilLabel = new Label("Estado Civil:");
-        ComboBox<String> estadoCivilComboBox = new ComboBox<>();
-        estadoCivilComboBox.getItems().addAll("Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)");
+        tabelaClientes.getColumns().add(colunaId);
+        tabelaClientes.getColumns().add(colunaNome);
+        tabelaClientes.getColumns().add(colunaEmail);
 
-        Label generoLabel = new Label("Gênero:");
-        ToggleGroup generoToggleGroup = new ToggleGroup();
-        RadioButton masculinoRadioButton = new RadioButton("Masculino");
-        RadioButton femininoRadioButton = new RadioButton("Feminino");
-        masculinoRadioButton.setToggleGroup(generoToggleGroup);
-        femininoRadioButton.setToggleGroup(generoToggleGroup);
+        tabelaClientes.setItems(listaClientes);
 
-        Label alturaLabel = new Label("Altura:");
-        Slider alturaSlider = new Slider(0, 300, 150);
+        Button btnAdicionar = new Button("Adicionar");
+        btnAdicionar.setOnAction(event -> adicionarCliente());
 
-        Label pesoLabel = new Label("Peso:");
-        Spinner<Integer> pesoSpinner = new Spinner<>(0, 500, 70);
+        Button btnEditar = new Button("Editar");
+        btnEditar.setOnAction(event -> editarCliente());
 
-        Label receberEmailsLabel = new Label("Receber Emails:");
-        ToggleButton receberEmailsToggleButton = new ToggleButton("Sim");
+        Button btnRemover = new Button("Remover");
+        btnRemover.setOnAction(event -> removerCliente());
 
-        Button cadastrarButton = new Button("Cadastrar");
-        cadastrarButton.setOnAction(event -> {
-            // Aqui você pode implementar a lógica para cadastrar o cliente com os dados inseridos nos campos de entrada
-            Cliente cliente = new Cliente();
-            cliente.listarClientes();
-        });
+        campoNome = new TextField();
+        campoNome.setPromptText("Nome");
 
-        // Layout da interface gráfica
-        GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(10, 10, 10, 10));
-        gridPane.setVgap(5);
-        gridPane.setHgap(5);
+        campoEmail = new TextField();
+        campoEmail.setPromptText("Email");
 
-        gridPane.add(nomeLabel, 0, 0);
-        gridPane.add(nomeField, 1, 0);
-        gridPane.add(idadeLabel, 0, 1);
-        gridPane.add(idadeField, 1, 1);
-        gridPane.add(enderecoLabel, 0, 2);
-        gridPane.add(enderecoArea, 1, 2);
-        gridPane.add(descontoLabel, 0, 3);
-        gridPane.add(descontoCheckBox, 1, 3);
-        gridPane.add(estadoCivilLabel, 0, 4);
-        gridPane.add(estadoCivilComboBox, 1, 4);
-        gridPane.add(generoLabel, 0, 5);
-        gridPane.add(masculinoRadioButton, 1, 5);
-        gridPane.add(femininoRadioButton, 2, 5);
-        gridPane.add(alturaLabel, 0, 6);
-        gridPane.add(alturaSlider, 1, 6);
-        gridPane.add(pesoLabel, 0, 7);
-        gridPane.add(pesoSpinner, 1, 7);
-        gridPane.add(receberEmailsLabel, 0, 8);
-        gridPane.add(receberEmailsToggleButton, 1, 8);
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(tabelaClientes, campoNome, campoEmail, btnAdicionar, btnEditar, btnRemover);
 
-        HBox hbox = new HBox(10);
-        hbox.getChildren().add(cadastrarButton);
-
-        VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(gridPane, hbox);
-
-        Scene scene = new Scene(vbox, 600, 600);
+        Scene scene = new Scene(vbox);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void adicionarCliente() {
+        String nome = campoNome.getText();
+        String email = campoEmail.getText();
+
+        if (!nome.isEmpty() && !email.isEmpty()) {
+            Cliente cliente = new Cliente(listaClientes.size() + 1, nome, email);
+            listaClientes.add(cliente);
+
+            campoNome.clear();
+            campoEmail.clear();
+        }
+    }
+
+    private void editarCliente() {
+        Cliente clienteSelecionado = tabelaClientes.getSelectionModel().getSelectedItem();
+
+        if (clienteSelecionado != null) {
+            String novoNome = campoNome.getText();
+            String novoEmail = campoEmail.getText();
+
+            if (!novoNome.isEmpty() && !novoEmail.isEmpty()) {
+                clienteSelecionado.setNome(novoNome);
+                clienteSelecionado.setEmail(novoEmail);
+
+                tabelaClientes.refresh();
+                campoNome.clear();
+                campoEmail.clear();
+            }
+        }
+    }
+
+    private void removerCliente() {
+        Cliente clienteSelecionado = tabelaClientes.getSelectionModel().getSelectedItem();
+
+        if (clienteSelecionado != null) {
+            listaClientes.remove(clienteSelecionado);
+            tabelaClientes.refresh();
+            campoNome.clear();
+            campoEmail.clear();
+        }
     }
 }
